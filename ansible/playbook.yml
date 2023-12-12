@@ -1,0 +1,95 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: Install system updates
+    ansible.builtin.yum:
+      name: '*'
+      state: latest
+      update_cache: yes
+    register: output
+
+  - name: System updates result
+    ansible.builtin.debug:
+      var: output.results
+
+  - name: Install OS packages
+    ansible.builtin.yum:
+      name:
+      - pip
+      - yum-utils
+      state: present
+
+  - name: Install Python packages
+    ansible.builtin.pip:
+      name:
+      - boto3==1.29.6
+      - botocore==1.32.6
+      - mock==5.1.0
+      - Requests==2.31.0
+      - simplejson==3.19.2
+      - docker==6.1.3
+      - docker-compose==1.29.2
+
+  - name: Add Docker repo
+    ansible.builtin.get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+
+  - name: Install Docker packages
+    ansible.builtin.yum:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      state: present
+      update_cache: yes
+
+  - name: Start and enable Docker service
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Add user 'isc' to docker group
+    ansible.builtin.user:
+      name: isc
+      groups: docker
+      append: yes
+
+  - name: Create Docker working directory
+    ansible.builtin.file:
+      path: /isc-mirror
+      state: directory
+      mode: '0755'
+
+  - name: Copy Docker files
+    ansible.builtin.copy:
+      src: "{{ item }}"
+      dest: "/isc-mirror/{{ item }}"
+      owner: isc
+      group: isc
+      mode: '0644'
+    loop:
+    - docker-compose.yml
+    - iris.key
+    - iris_2023.tar
+
+  - name: Load IRIS Docker image
+    community.docker.docker_image:
+      name: containers.intersystems.com/intersystems/iris:2023.1.1.380.0
+      load_path: /isc-mirror/iris_2023.tar
+      state: present
+      source: load
+
+  - name: Start IRIS
+    community.docker.docker_compose:
+      project_src: /isc-mirror/
+    register: output
+
+  - name: Start IRIS result
+    ansible.builtin.debug:
+      var: output

@@ -1,0 +1,5 @@
+**/.terraform*
+**/terraform.tfstate*
+**/isc-mirror.json
+**/*.tar
+**/iris.key
