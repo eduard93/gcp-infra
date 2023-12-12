@@ -1,93 +1,109 @@
-# gcp-infra
+This repository is intended to demonstrate ISC Mirroring Failover in GCP cloud.
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+## Tools
+[gcloud](https://cloud.google.com/sdk/docs/install):
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/isc-mirror/gcp-infra.git
-git branch -M main
-git push -uf origin main
+$ gcloud version
+Google Cloud SDK 455.0.0
+...
 ```
 
-## Integrate with your tools
+[terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli):
+```
+$ terraform version
+Terraform v1.6.3
+```
 
-- [ ] [Set up project integrations](https://gitlab.com/isc-mirror/gcp-infra/-/settings/integrations)
+[python](https://www.python.org/downloads/):
+```
+$ python3 --version
+Python 3.10.12
+```
 
-## Collaborate with your team
+[ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html):
+```
+$ ansible --version
+ansible [core 2.12.5]
+...
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+[ansible-playbook](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html):
+```
+$ ansible-playbook --version
+ansible-playbook [core 2.12.5]
+...
+```
 
-## Test and Deploy
+## IaC
+1. Define several variables used below, like project ID and so on:
+```
+$ export PROJECT_ID=zpm-package-manager
+$ export TF_VAR_project_id=${PROJECT_ID}
+$ export ROLE_NAME=MyTerraformRole
+$ export SA_NAME=isc-mirror
+```
 
-Use the built-in continuous integration in GitLab.
+2. Create Role used by Terraform for managing needed GCP resources:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```
+$ gcloud iam roles create ${ROLE_NAME} --project ${PROJECT_ID} --file=terraform-permissions.yaml
+```
+Note: use `update` for later usage:
+```
+$ gcloud iam roles update ${ROLE_NAME} --project ${PROJECT_ID} --file=terraform-permissions.yaml
+```
 
-***
+3. Create Service Account with Terraform role:
+```
+$ gcloud iam service-accounts create ${SA_NAME} \
+    --description="Terraform Service Account for ISC Mirroring" \
+    --display-name="Terraform Service Account for ISC Mirroring"
 
-# Editing this README
+$ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+    --member="serviceAccount:${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role=projects/${PROJECT_ID}/roles/${ROLE_NAME}
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+4. Generate Service Account key and store its value in a certain environment variable:
+```
+$ gcloud iam service-accounts keys create ${SA_NAME}.json \
+    --iam-account=${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 
-## Suggestions for a good README
+$ export GOOGLE_APPLICATION_CREDENTIALS=${SA_NAME}.json
+```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+5. Generate SSH keypair.
 
-## Name
-Choose a self-explaining name for your project.
+Generate SSH keypair. Store a private part locally as `.ssh/isc_mirror`. Put a public part to a file [isc_mirror.pub](../terraform/templates/isc_mirror.pub):
+```
+$ ssh-keygen -b 4096 -C "isc"
+$ cp ~/.ssh/isc_mirror.pub <root_repo_dir>/terraform/templates/
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+6. Create resources with Terraform:
+```
+$ terraform init
+$ terraform plan
+$ terraform apply
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## Prepare Docker images
+Let's assume that VM instances don't have an access to ISC container repository. But you personally do have. You can pull IRIS Docker image from ISC container registry, archive it, copy it to VM and unpack that image there.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+This is a way to run IRIS containers taken from ISC private repository.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```
+$ docker login containers.intersystems.com
+$ docker pull containers.intersystems.com/intersystems/iris:2023.1.1.380.0
+$ docker save -o <root_repo_dir>/ansible/iris_2023.tar containers.intersystems.com/intersystems/iris:2023.1.1.380.0
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Put IRIS license
+Put IRIS license key file, `iris.key` to <root_repo_dir>/ansible/iris.key. Note that a license has to support Mirroring.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Provisioning
+```
+$ cd ansible/
+$ ansible-playbook -i "35.197.41.3," -e ansible_user=isc playbook.yml
+```

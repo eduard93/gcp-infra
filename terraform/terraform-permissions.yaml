@@ -1,0 +1,329 @@
+title: My Terraform Role
+description: Role used by Terraform to manage GCP resources
+stage: GA
+includedPermissions:
+
+# Project
+- compute.projects.get
+# - resourcemanager.projects.get
+
+# Network
+- compute.networks.get
+- compute.networks.create
+- compute.networks.update
+- compute.networks.delete
+- compute.networks.updatePolicy
+- compute.subnetworks.get
+- compute.subnetworks.create
+- compute.subnetworks.update
+- compute.subnetworks.delete
+
+# Router
+- compute.routers.get
+- compute.routers.create
+- compute.routers.update
+- compute.routers.delete
+
+# Compute
+- compute.instances.get
+- compute.instances.create
+- compute.instances.delete
+- compute.instanceTemplates.get
+- compute.instanceTemplates.create
+- compute.instanceTemplates.delete
+- compute.instanceTemplates.useReadOnly
+- compute.instances.setTags
+- compute.instances.setLabels
+- compute.instances.setMetadata
+- compute.instances.setServiceAccount
+- compute.disks.create
+- compute.disks.get
+- compute.networks.updatePolicy
+- compute.subnetworks.use
+- compute.subnetworks.useExternalIp
+- compute.regions.list
+- compute.zones.get
+- compute.zones.list
+# - compute.zoneOperations.get
+
+# Firewalls
+- compute.firewalls.list
+- compute.firewalls.get
+- compute.firewalls.create
+- compute.firewalls.update
+- compute.firewalls.delete
+
+# # Images
+# - compute.images.get
+
+# # Instance Group
+# - compute.instanceGroupManagers.get
+
+# # IP Addresses
+# - compute.addresses.list
+# - compute.addresses.get
+# - compute.addresses.use
+# - compute.addresses.create
+# - compute.addresses.delete
+# - compute.globalAddresses.get
+
+# # Forwarding Rules
+# - compute.forwardingRules.list
+# - compute.forwardingRules.get
+# - compute.forwardingRules.create
+# - compute.forwardingRules.update
+
+# # Container
+# # Cluster Role Bindings
+# - container.clusterRoleBindings.list
+# - container.clusterRoleBindings.create
+# - container.clusterRoleBindings.delete
+# - container.clusterRoleBindings.get
+# - container.clusterRoleBindings.update
+
+# # Cluster Roles
+# - container.clusterRoles.list
+# - container.clusterRoles.bind
+# - container.clusterRoles.create
+# - container.clusterRoles.delete
+# - container.clusterRoles.escalate
+# - container.clusterRoles.get
+# - container.clusterRoles.update
+
+# # Clusters
+# - container.clusters.list
+# - container.clusters.get
+# - container.clusters.getCredentials
+# - container.clusters.update
+# - container.clusters.delete
+
+# # ConfigMaps
+# - container.configMaps.list
+# - container.configMaps.create
+# - container.configMaps.delete
+# - container.configMaps.get
+# - container.configMaps.update
+
+# # CronJobs
+# - container.cronJobs.list
+# - container.cronJobs.create
+# - container.cronJobs.delete
+# - container.cronJobs.get
+# - container.cronJobs.update
+
+# # Custom Resource Definitons
+# - container.customResourceDefinitions.list
+# - container.customResourceDefinitions.create
+# - container.customResourceDefinitions.get
+# - container.customResourceDefinitions.update
+
+# # DaemonSets
+# - container.daemonSets.list
+# - container.daemonSets.create
+# - container.daemonSets.delete
+# - container.daemonSets.get
+# - container.daemonSets.update
+
+# # Deployments
+# - container.deployments.list
+# - container.deployments.create
+# - container.deployments.delete
+# - container.deployments.get
+# - container.deployments.getScale
+# - container.deployments.update
+# - container.deployments.updateScale
+
+# # Endpoints
+# - container.endpoints.get
+
+# # Events
+# - container.events.list
+# - container.events.get
+
+# # Ingresses
+# - container.ingresses.list
+# - container.ingresses.create
+# - container.ingresses.delete
+# - container.ingresses.get
+# - container.ingresses.update
+
+# # Jobs
+# - container.jobs.list
+# - container.jobs.create
+# - container.jobs.delete
+# - container.jobs.get
+
+# # Leases
+# - container.leases.get
+
+# # Managed Certificates
+# - container.managedCertificates.list
+# - container.managedCertificates.create
+# - container.managedCertificates.get
+# - container.managedCertificates.update
+
+# # Mutating Webhooks
+# - container.mutatingWebhookConfigurations.create
+# - container.mutatingWebhookConfigurations.delete
+# - container.mutatingWebhookConfigurations.get
+# - container.mutatingWebhookConfigurations.update
+
+# # Namespaces
+# - container.namespaces.list
+# - container.namespaces.create
+# - container.namespaces.delete
+# - container.namespaces.get
+# - container.namespaces.update
+
+# # Nodes
+# - container.nodes.list
+# - container.nodes.delete
+# - container.nodes.get
+# - container.nodes.update
+
+# # Operations
+# - container.operations.get
+
+# # Persistent Volume Claims
+# - container.persistentVolumeClaims.list
+# - container.persistentVolumeClaims.delete
+# - container.persistentVolumeClaims.get
+
+# # Persistent Volumes
+# - container.persistentVolumes.list
+
+# # Pod Disruption Budgets
+# - container.podDisruptionBudgets.create
+# - container.podDisruptionBudgets.delete
+# - container.podDisruptionBudgets.get
+# - container.podDisruptionBudgets.update
+
+# # Pods
+# - container.pods.list
+# - container.pods.attach
+# - container.pods.create
+# - container.pods.delete
+# - container.pods.exec
+# - container.pods.get
+# - container.pods.getLogs
+# - container.pods.portForward
+# - container.pods.update
+
+# # ReplicaSets
+# - container.replicaSets.list
+# - container.replicaSets.delete
+# - container.replicaSets.get
+
+# # Role Bindings
+# - container.roleBindings.list
+# - container.roleBindings.create
+# - container.roleBindings.delete
+# - container.roleBindings.get
+# - container.roleBindings.update
+
+# # Roles
+# - container.roles.list
+# - container.roles.bind
+# - container.roles.create
+# - container.roles.delete
+# - container.roles.escalate
+# - container.roles.get
+# - container.roles.update
+
+# # Secrets
+# - container.secrets.create
+# - container.secrets.delete
+# - container.secrets.get
+# - container.secrets.list
+# - container.secrets.update
+
+# # Self Subject Access Reviews
+# - container.selfSubjectAccessReviews.create
+
+# # Service Accounts
+# - container.serviceAccounts.list
+# - container.serviceAccounts.create
+# - container.serviceAccounts.delete
+# - container.serviceAccounts.get
+# - container.serviceAccounts.update
+
+# # Services
+# - container.services.list
+# - container.services.create
+# - container.services.delete
+# - container.services.get
+# - container.services.update
+
+# # StatefulSets
+# - container.statefulSets.list
+# - container.statefulSets.create
+# - container.statefulSets.delete
+# - container.statefulSets.get
+# - container.statefulSets.getScale
+# - container.statefulSets.update
+# - container.statefulSets.updateScale
+
+# # Third-party objects
+# - container.thirdPartyObjects.list
+# - container.thirdPartyObjects.create
+# - container.thirdPartyObjects.delete
+# - container.thirdPartyObjects.get
+# - container.thirdPartyObjects.update
+
+# # Validating Webhooks
+# - container.validatingWebhookConfigurations.create
+# - container.validatingWebhookConfigurations.delete
+# - container.validatingWebhookConfigurations.get
+# - container.validatingWebhookConfigurations.update
+
+# # Pod Security Policy
+# - container.podSecurityPolicies.create
+# - container.podSecurityPolicies.delete
+# - container.podSecurityPolicies.get
+# - container.podSecurityPolicies.update
+
+# IAM
+- iam.serviceAccounts.getIamPolicy
+- iam.serviceAccounts.setIamPolicy
+- iam.serviceAccounts.actAs
+- iam.serviceAccounts.list
+- iam.serviceAccounts.create
+- iam.serviceAccounts.delete
+- iam.serviceAccounts.get
+- iam.serviceAccounts.update
+- iam.roles.list
+- iam.roles.create
+- iam.roles.delete
+- iam.roles.get
+- iam.roles.update
+- iam.roles.undelete
+
+# Resource Manager
+- resourcemanager.projects.getIamPolicy
+- resourcemanager.projects.setIamPolicy
+
+# # Storage
+# - storage.objects.list
+# - storage.buckets.getIamPolicy
+# - storage.buckets.setIamPolicy
+# - storage.objects.getIamPolicy
+# - storage.buckets.create
+# - storage.buckets.delete
+# - storage.buckets.get
+# - storage.buckets.update
+# - storage.objects.create
+# - storage.objects.delete
+# - storage.objects.get
+
+# # DNS
+# - dns.managedZones.create
+# - dns.managedZones.delete
+# - dns.managedZones.get
+# - dns.managedZones.getIamPolicy
+# - dns.managedZones.list
+# - dns.managedZones.update
+# - dns.resourceRecordSets.create
+# - dns.resourceRecordSets.delete
+# - dns.resourceRecordSets.get
+# - dns.resourceRecordSets.list
+# - dns.resourceRecordSets.update
