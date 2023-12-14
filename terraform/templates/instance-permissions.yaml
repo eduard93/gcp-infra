@@ -1,1 +1,2 @@
-"compute.zones.get"
+"compute.instances.get"
+"compute.instances.updateNetworkInterface"

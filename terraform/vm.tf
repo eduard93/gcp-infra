@@ -9,14 +9,14 @@ module "instance_template" {
   source_image_project = var.source_image_project
   source_image         = var.source_image
   subnetwork           = module.vpc.subnets_names[0]
-  tags                 = ["allow-ssh-ingress"]
+  tags                 = ["allow-ssh-ingress", "allow-iris-ingress"]
   startup_script       = file(var.startup_script_file)
   metadata = {
     ssh-keys = "${var.ssh_user}:${file(var.ssh_public_key_file)}"
   }
   service_account = {
     email  = module.service_accounts.email
-    scopes = []
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"] # See https://cloud.google.com/compute/docs/access/service-accounts#scopes_best_practice
   }
 }
 

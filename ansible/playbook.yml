@@ -4,10 +4,11 @@
 
   tasks:
   - name: Install system updates
-    ansible.builtin.yum:
+    ansible.builtin.dnf:
       name: '*'
       state: latest
       update_cache: yes
+      nobest: true # To avoid 'cannot install the best update candidate for package python3-policycoreutils-3.5-1.el9.noarch'
     register: output
 
   - name: System updates result
@@ -15,7 +16,7 @@
       var: output.results
 
   - name: Install OS packages
-    ansible.builtin.yum:
+    ansible.builtin.dnf:
       name:
       - pip
       - yum-utils
@@ -38,7 +39,7 @@
       dest: /etc/yum.repos.d/docker-ce.repo
 
   - name: Install Docker packages
-    ansible.builtin.yum:
+    ansible.builtin.dnf:
       name:
       - docker-ce
       - docker-ce-cli

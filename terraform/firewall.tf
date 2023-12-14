@@ -7,7 +7,7 @@ module "firewall_rules" {
 
   rules = [{
     name                    = "allow-ssh-ingress"
-    description             = null
+    description             = "Allow SSH"
     direction               = "INGRESS"
     priority                = null
     ranges                  = ["0.0.0.0/0"]
@@ -25,7 +25,7 @@ module "firewall_rules" {
     }
     }, {
     name                    = "allow-iris-ingress"
-    description             = null
+    description             = "Allow connection to IRIS ports"
     direction               = "INGRESS"
     priority                = null
     ranges                  = [var.subnet_ip]
@@ -36,6 +36,23 @@ module "firewall_rules" {
     allow = [{
       protocol = "tcp"
       ports    = ["1972", "2188", "52773", "53773"]
+    }]
+    deny = []
+    log_config = {
+      metadata = "INCLUDE_ALL_METADATA"
+    }
+    }, {
+    name                    = "allow-ping"
+    description             = "Allow ping"
+    direction               = "INGRESS"
+    priority                = null
+    ranges                  = [var.subnet_ip]
+    source_tags             = null
+    source_service_accounts = null
+    target_tags             = null
+    target_service_accounts = null
+    allow = [{
+      protocol = "icmp"
     }]
     deny = []
     log_config = {

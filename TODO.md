@@ -1,5 +1,5 @@
 - change instance permissions
-- change default ssh port
+- change default ssh port (templates/vm_init.sh)
 - disable ssh with root user
 - do we still need a startup script?
 - check that all commented code is removed
@@ -15,3 +15,6 @@ null_resource.client (local-exec): fatal: [34.82.229.130]: UNREACHABLE! => {"cha
 - terraform. Remote state
 - run everything with gitlab pipeline
 - setup correct node permissions
+- do we need a file requirements.txt
+- Use iris image with separate web gateway
+- Implement https://stackoverflow.com/questions/54923580/how-to-execute-the-gcloud-api-to-move-the-alias-ip-from-one-instance-to-another
