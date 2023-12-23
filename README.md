@@ -43,7 +43,8 @@ ansible-playbook [core 2.12.5]
 ## IaC
 1. Define several variables used below, like project ID and so on:
 ```
-$ export PROJECT_ID=zpm-package-manager
+$ export PROJECT_ID=<project_id>
+$ export REGION=<region> # For instance, us-west1
 $ export TF_VAR_project_id=${PROJECT_ID}
 $ export ROLE_NAME=MyTerraformRole
 $ export SA_NAME=isc-mirror
@@ -52,6 +53,8 @@ $ export SA_NAME=isc-mirror
 2. Create Role used by Terraform for managing needed GCP resources:
 
 ```
+$ cd terraform
+
 $ gcloud iam roles create ${ROLE_NAME} --project ${PROJECT_ID} --file=terraform-permissions.yaml
 ```
 Note: use `update` for later usage:
@@ -93,22 +96,36 @@ $ terraform plan
 $ terraform apply
 ```
 
+# Prepare Artifact Registry
+It's [recommended](https://cloud.google.com/container-registry/docs/advanced-authentication) to leverage Google Artifact Registry instead of Container Registry. So let's create registry first:
+```
+$ cd <root_repo_dir>/terraform
+$ cat ${SA_NAME}.json | base64 | tr -d '\n' | docker login -u _json_key_base64 --password-stdin https://${REGION}-docker.pkg.dev
+$ gcloud artifacts repositories create --repository-format=docker --location=${REGION} intersystems
+```
+
 ## Prepare Docker images
-Let's assume that VM instances don't have an access to ISC container repository. But you personally do have. You can pull IRIS Docker image from ISC container registry, archive it, copy it to VM and unpack that image there.
+Let's assume that VM instances don't have an access to ISC container repository. But you personally do have and at the same do not want to put your personal credentials on VMs.
 
-This is a way to run IRIS containers taken from ISC private repository.
-
+In that case you can pull IRIS Docker images from ISC container registry and push them to Google container registry where VMs have an access to:
 ```
 $ docker login containers.intersystems.com
-$ docker pull containers.intersystems.com/intersystems/iris:2023.1.1.380.0
-$ docker save -o <root_repo_dir>/ansible/iris_2023.tar containers.intersystems.com/intersystems/iris:2023.1.1.380.0
+$ <Put your credentials here>
+
+$ export IRIS_VERSION=2023.2.0.221.0
+$ for IMAGE in iris webgateway arbiter; do \
+    docker pull containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} \
+    && docker tag containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}:${IRIS_VERSION} \
+    && docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}:${IRIS_VERSION}; \
+done
 ```
 
 ## Put IRIS license
-Put IRIS license key file, `iris.key` to <root_repo_dir>/ansible/iris.key. Note that a license has to support Mirroring.
+Put IRIS license key file, `iris.key` to <root_repo_dir>/docker-compose/iris/iris.key. Note that a license has to support Mirroring.
 
 
 ## Provisioning
+Terraform runs Ansible right after infrastructure creation. So you're not required to do it manually. But if you'd like to play with Ansible playbook locally, you could do it in this way:
 ```
 $ cd ansible/
 $ ansible-playbook -i "35.197.41.3," -e ansible_user=isc playbook.yml

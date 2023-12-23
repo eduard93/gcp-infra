@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  iris:
+    image: containers.intersystems.com/intersystems/iris:${IRIS_VERSION}
+    container_name: iris
+    hostname: iris
+    command: --key /iris/iris.key
+    ports:
+      - 1972:1972
+      - 2188:2188
+      - 52773:52773
+      - 53773:53773
+    volumes:
+      - type: bind
+        source: ./iris
+        target: /iris
+
+  # For the sake of simplicity, Webgateway runs without SSL
+  webgateway:
+    image: containers.intersystems.com/intersystems/webgateway:${IRIS_VERSION}
+    container_name: webgateway
+    hostname: webgateway
+    ports:
+      - 8080:80
+    environment:
+      - ISC_CSP_CONF_FILE=/webgateway/CSP.conf
+      - ISC_CSP_INI_FILE=/webgateway/CSP.ini
+    volumes:
+      - type: bind
+        source: ./webgateway
+        target: /webgateway
+
+  arbiter:
+    image: containers.intersystems.com/intersystems/arbiter:${IRIS_VERSION}
+    container_name: iris
+    hostname: iris
+    command: --key /iris/iris.key
+    ports:
+      - 2188:2188

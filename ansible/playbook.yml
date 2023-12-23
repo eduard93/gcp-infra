@@ -64,34 +64,56 @@
 
   - name: Create Docker working directory
     ansible.builtin.file:
-      path: /isc-mirror
+      path: "/isc-mirror/{{ item }}"
       state: directory
       mode: '0755'
+    loop:
+    - iris
+    - webgateway
+    when: ansible_facts['hostname'] != "isc-client-001"
+
+  - name: Authenticate Docker to Artifact Registry
+    ansible.builtin.shell:
+      cmd: "gcloud auth configure-docker {{ region }}-docker.pkg.dev --quiet"
+    when: ansible_facts['hostname'] != "isc-client-001"
 
   - name: Copy Docker files
     ansible.builtin.copy:
-      src: "{{ item }}"
-      dest: "/isc-mirror/{{ item }}"
+      src: "{{ item.local_dir }}"
+      dest: "/isc-mirror/{{ item.remote_dir }}/{{ item.local_dir | basename }}"
       owner: isc
       group: isc
       mode: '0644'
     loop:
-    - docker-compose.yml
-    - iris.key
-    - iris_2023.tar
+    - {local_dir: '../docker-compose/iris/', remote_dir: 'iris'}
+    - {local_dir: '../docker-compose/webgateway/', remote_dir: 'webgateway'}
+    when: ansible_facts['hostname'] == "isc-primary-001" or ansible_facts['hostname'] == "isc-backup-001"
 
-  - name: Load IRIS Docker image
-    community.docker.docker_image:
-      name: containers.intersystems.com/intersystems/iris:2023.1.1.380.0
-      load_path: /isc-mirror/iris_2023.tar
-      state: present
-      source: load
+  - name: Render and copy docker-compose-mirror file
+    ansible.builtin.template:
+      src: ../docker-compose/docker-compose-mirror.j2
+      dest: /isc-mirror/docker-compose-mirror.yml
+      owner: isc
+      group: isc
+      mode: '0644'
+    when: ansible_facts['hostname'] == "isc-primary-001" or ansible_facts['hostname'] == "isc-backup-001"
 
-  - name: Start IRIS
-    community.docker.docker_compose:
-      project_src: /isc-mirror/
-    register: output
+  - name: Render and copy docker-compose-arbiter file
+    ansible.builtin.template:
+      src: ../docker-compose/docker-compose-arbiter.j2
+      dest: /isc-mirror/docker-compose-arbiter.yml
+      owner: isc
+      group: isc
+      mode: '0644'
+    when: ansible_facts['hostname'] == "isc-arbiter-001"
 
-  - name: Start IRIS result
-    ansible.builtin.debug:
-      var: output
+  # - name: Start IRIS
+  #   community.docker.docker_compose:
+  #     project_src: /isc-mirror/
+  #     files:
+  #     - docker-compose-mirror.yml
+  #   register: output
+
+  # - name: Start IRIS result
+  #   ansible.builtin.debug:
+  #     var: output

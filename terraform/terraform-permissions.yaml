@@ -70,3 +70,6 @@ includedPermissions:
 # Resource Manager
 - resourcemanager.projects.getIamPolicy
 - resourcemanager.projects.setIamPolicy
+
+# Artifact Registry
+- artifactregistry.repositories.uploadArtifacts

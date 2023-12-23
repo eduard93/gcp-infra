@@ -10,6 +10,12 @@ variable "region" {
   description = "GCP Region"
 }
 
+variable "iris_version" {
+  type        = string
+  default     = "2023.2.0.221.0"
+  description = "IRIS version"
+}
+
 variable "name" {
   type        = string
   default     = "isc-mirror"
@@ -48,16 +54,16 @@ variable "source_image" {
 
 variable "vm_names_zone_mapping" {
   type = object({
-    isc-primary   = string
-    isc-secondary = string
-    isc-agent     = string
-    isc-client    = string
+    isc-primary = string
+    isc-backup  = string
+    isc-arbiter = string
+    isc-client  = string
   })
   default = {
-    "isc-primary"   = "a",
-    "isc-secondary" = "b",
-    "isc-agent"     = "c",
-    "isc-client"    = "c"
+    "isc-primary" = "a",
+    "isc-backup"  = "b",
+    "isc-arbiter" = "c",
+    "isc-client"  = "c"
   }
 }
 

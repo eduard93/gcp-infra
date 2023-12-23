@@ -21,7 +21,7 @@ resource "null_resource" "client" {
     command = <<-EOT
       ssh-add ${var.ssh_private_key_file}
       ansible-playbook -i "$HOST_IP," \
-        --extra-vars ansible_user="$SSH_USER" \
+        --extra-vars "ansible_user=$SSH_USER project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
         --ssh-common-args="$SSH_COMMON_ARGS" \
         --timeout "$TIMEOUT" \
         ../ansible/playbook.yml
@@ -31,6 +31,9 @@ resource "null_resource" "client" {
       SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no"
       SSH_USER        = var.ssh_user
       TIMEOUT         = 120
+      PROJECT_ID      = var.project_id
+      REGION          = var.region
+      IRIS_VERSION    = var.iris_version
     }
   }
 }
@@ -64,7 +67,7 @@ resource "null_resource" "servers" {
     command = <<-EOT
       ssh-add ${var.ssh_private_key_file}
       ansible-playbook -i "$HOST_IP," \
-        --extra-vars "ansible_user=$SSH_USER" \
+        --extra-vars "ansible_user=$SSH_USER project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
         --ssh-common-args="$SSH_COMMON_ARGS" \
         --timeout "$TIMEOUT" \
         ../ansible/playbook.yml
@@ -74,6 +77,9 @@ resource "null_resource" "servers" {
       SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no -o ProxyJump=${var.ssh_user}@${nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)}"
       SSH_USER        = var.ssh_user
       TIMEOUT         = 120
+      PROJECT_ID      = var.project_id
+      REGION          = var.region
+      IRIS_VERSION    = var.iris_version
     }
   }
 }
