@@ -75,6 +75,7 @@
   - name: Authenticate Docker to Artifact Registry
     ansible.builtin.shell:
       cmd: "gcloud auth configure-docker {{ region }}-docker.pkg.dev --quiet"
+    become_user: "{{ ansible_user }}"
     when: ansible_facts['hostname'] != "isc-client-001"
 
   - name: Copy Docker files
@@ -92,7 +93,7 @@
   - name: Render and copy docker-compose-mirror file
     ansible.builtin.template:
       src: ../docker-compose/docker-compose-mirror.j2
-      dest: /isc-mirror/docker-compose-mirror.yml
+      dest: /isc-mirror/docker-compose.yml
       owner: isc
       group: isc
       mode: '0644'
@@ -101,19 +102,21 @@
   - name: Render and copy docker-compose-arbiter file
     ansible.builtin.template:
       src: ../docker-compose/docker-compose-arbiter.j2
-      dest: /isc-mirror/docker-compose-arbiter.yml
+      dest: /isc-mirror/docker-compose.yml
       owner: isc
       group: isc
       mode: '0644'
     when: ansible_facts['hostname'] == "isc-arbiter-001"
 
-  # - name: Start IRIS
-  #   community.docker.docker_compose:
-  #     project_src: /isc-mirror/
-  #     files:
-  #     - docker-compose-mirror.yml
-  #   register: output
+  - name: Start IRIS
+    community.docker.docker_compose:
+      project_src: /isc-mirror/
+      files:
+      - docker-compose.yml
+    register: output
+    when: ansible_facts['hostname'] != "isc-client-001"
 
-  # - name: Start IRIS result
-  #   ansible.builtin.debug:
-  #     var: output
+  - name: Start IRIS result
+    ansible.builtin.debug:
+      var: output
+    when: ansible_facts['hostname'] != "isc-client-001"

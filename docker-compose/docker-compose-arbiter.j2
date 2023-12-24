@@ -3,8 +3,7 @@ version: '3.9'
 services:
   arbiter:
     image: "{{ region }}-docker.pkg.dev/{{ project_id }}/intersystems/arbiter:{{ iris_version }}"
-    container_name: iris
-    hostname: iris
-    command: --key /iris/iris.key
+    container_name: arbiter
+    hostname: arbiter
     ports:
       - 2188:2188
