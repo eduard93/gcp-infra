@@ -7,14 +7,19 @@ services:
     hostname: iris
     command: --key /iris/iris.key
     ports:
-      - 1972:1972
-      - 2188:2188
-      - 52773:52773
-      - 53773:53773
+    - 1972:1972
+    - 2188:2188
+    - 53773:53773
+    environment:
+    {% if hostname == 'isc-primary-001' -%}
+    - ISC_CPF_MERGE_FILE=/iris/mirrorPrimary.conf
+    {% elif hostname == 'isc-backup-001' -%}
+    - ISC_CPF_MERGE_FILE=/iris/mirrorBackup.conf
+    {% endif -%}
     volumes:
-      - type: bind
-        source: ./iris
-        target: /iris
+    - type: bind
+      source: ./iris
+      target: /iris
 
   # For the sake of simplicity, Webgateway runs without SSL
   webgateway:
@@ -22,11 +27,11 @@ services:
     container_name: webgateway
     hostname: webgateway
     ports:
-      - 8080:80
+    - 8080:80
     environment:
-      - ISC_CSP_CONF_FILE=/webgateway/CSP.conf
-      - ISC_CSP_INI_FILE=/webgateway/CSP.ini
+    - ISC_CSP_CONF_FILE=/webgateway/CSP.conf
+    - ISC_CSP_INI_FILE=/webgateway/CSP.ini
     volumes:
-      - type: bind
-        source: ./webgateway
-        target: /webgateway
+    - type: bind
+      source: ./webgateway
+      target: /webgateway

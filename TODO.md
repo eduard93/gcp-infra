@@ -20,3 +20,4 @@ null_resource.client (local-exec): fatal: [34.82.229.130]: UNREACHABLE! => {"cha
 - Implement https://stackoverflow.com/questions/54923580/how-to-execute-the-gcloud-api-to-move-the-alias-ip-from-one-instance-to-another
 
 - Check variables.tf for location of provate ssh key. Add a note about it to README
+- Nodes DNS
