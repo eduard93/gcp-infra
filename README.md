@@ -145,34 +145,4 @@ Put IRIS license key file, `iris.key` to <root_repo_dir>/docker-compose/iris/iri
 
 
 ## Provisioning
-Terraform runs Ansible right after infrastructure creation. So you're not required to do it manually. But if you'd like to play with Ansible playbook locally, you could do it in this way:
-```
-$ cd ansible/
-$ ansible-playbook -i "35.197.41.3," -e ansible_user=isc playbook.yml
-```
-
-
-## TODO
-Get zone:
-```
-$ curl "http://metadata.google.internal/computeMetadata/v1/instance/zone" -H "Metadata-Flavor: Google"
-projects/405309937753/zones/us-west1-a
-```
-Remove alias:
-```
-$ gcloud compute instances network-interfaces update isc-primary-001 --zone=us-west1-a --aliases=""
-```
-Add alias:
-```
-$ gcloud compute instances network-interfaces update isc-primary-001 --zone=us-west1-a --aliases="10.0.0.250/32"
-```
-
-Also note [Unusable addresses in IPv4 subnet ranges](https://cloud.google.com/vpc/docs/subnets#unusable-ip-addresses-in-every-subnet).
-
-Google Cloud uses the first two and last two IPv4 addresses in each subnet primary IPv4 address range to host the subnet. Google Cloud lets you use all addresses in secondary IPv4 ranges.
-
-i.e.
-- 10.0.0.0 - Network address
-- 10.0.0.1 - Default gateway address
-- 10.0.0.254 - Second-to-last address. Reserved for potential future use
-- 10.0.0.255 - Broadcast address
+Terraform runs Ansible right after infrastructure creation. So you're not required to do it manually.
