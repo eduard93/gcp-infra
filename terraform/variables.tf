@@ -52,18 +52,18 @@ variable "source_image" {
   description = "OS image"
 }
 
-variable "vm_names_zone_mapping" {
+variable "vm" {
   type = object({
-    isc-primary = string
-    isc-backup  = string
-    isc-arbiter = string
-    isc-client  = string
+    isc-primary = object({ zone = string, ip_address = string })
+    isc-backup  = object({ zone = string, ip_address = string })
+    isc-arbiter = object({ zone = string, ip_address = string })
+    isc-client  = object({ zone = string, ip_address = string })
   })
   default = {
-    "isc-primary" = "a",
-    "isc-backup"  = "b",
-    "isc-arbiter" = "c",
-    "isc-client"  = "c"
+    "isc-primary" = { zone = "a", ip_address = "10.0.0.3" },
+    "isc-backup"  = { zone = "b", ip_address = "10.0.0.4" },
+    "isc-arbiter" = { zone = "c", ip_address = "10.0.0.5" },
+    "isc-client"  = { zone = "c", ip_address = "10.0.0.6" },
   }
 }
 

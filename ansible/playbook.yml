@@ -58,7 +58,7 @@
 
   - name: Add user 'isc' to docker group
     ansible.builtin.user:
-      name: isc
+      name: "{{ ansible_user }}"
       groups: docker
       append: yes
 
@@ -67,6 +67,8 @@
       path: "/isc-mirror/{{ item }}"
       state: directory
       mode: '0755'
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
     loop:
     - iris
     - webgateway
@@ -82,8 +84,8 @@
     ansible.builtin.copy:
       src: "{{ item.local_dir }}"
       dest: "/isc-mirror/{{ item.remote_dir }}/{{ item.local_dir | basename }}"
-      owner: isc
-      group: isc
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
       mode: '0644'
     loop:
     - {local_dir: '../docker-compose/iris/', remote_dir: 'iris'}
@@ -94,8 +96,8 @@
     ansible.builtin.template:
       src: ../docker-compose/docker-compose-mirror.j2
       dest: /isc-mirror/docker-compose.yml
-      owner: isc
-      group: isc
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
       mode: '0644'
     vars:
       hostname: "{{ ansible_facts['hostname'] }}"
@@ -105,8 +107,8 @@
     ansible.builtin.template:
       src: ../docker-compose/docker-compose-arbiter.j2
       dest: /isc-mirror/docker-compose.yml
-      owner: isc
-      group: isc
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
       mode: '0644'
     vars:
       hostname: "{{ ansible_facts['hostname'] }}"

@@ -83,7 +83,7 @@ def get_remote_instance_and_zone() -> str:
     local_instance = get_metadata(instance_path)
     instances = {
         "isc-primary-001": "us-west1-a",
-        "isc-client-001": "us-west1-c"
+        "isc-backup-001": "us-west1-b"
     }
     del instances[local_instance]
     return instances

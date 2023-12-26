@@ -89,12 +89,26 @@ $ ssh-keygen -b 4096 -C "isc"
 $ cp ~/.ssh/isc_mirror.pub <root_repo_dir>/terraform/templates/
 ```
 
-6. Create resources with Terraform:
+7. Create resources with Terraform:
 ```
 $ terraform init
 $ terraform plan
 $ terraform apply
 ```
+**Note 1**: You can find a public IP of `isc-client-001` instance by running the following command:
+```
+$ export ISC_CLIENT_PUBLIC_IP=$(gcloud compute instances describe isc-client-001 --zone=us-west1-c --format=json | jq -r '.networkInterfaces[].accessConfigs[].natIP')
+```
+
+**Note 2**: Sometimes Terraform fails with errors like:
+```
+Failed to connect to the host via ssh: kex_exchange_identification: Connection closed by remote host...
+```
+In that case try to clean a local `~/.ssh/known_hosts` file:
+```
+$ for IP in ${ISC_CLIENT_PUBLIC_IP} 10.0.0.{3..6}; do ssh-keygen -R ${IP}; done
+```
+and then repeat `terraform apply`.
 
 # Prepare Artifact Registry
 It's [recommended](https://cloud.google.com/container-registry/docs/advanced-authentication) to leverage Google Artifact Registry instead of Container Registry. So let's create registry first:
@@ -113,6 +127,7 @@ $ docker login containers.intersystems.com
 $ <Put your credentials here>
 
 $ export IRIS_VERSION=2023.2.0.221.0
+
 $ for IMAGE in iris webgateway arbiter; do \
     docker pull containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} \
     && docker tag containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}:${IRIS_VERSION} \

@@ -35,6 +35,7 @@ includedPermissions:
 - compute.instances.setLabels
 - compute.instances.setMetadata
 - compute.instances.setServiceAccount
+- compute.instances.addAccessConfig
 - compute.disks.create
 - compute.disks.get
 - compute.networks.updatePolicy

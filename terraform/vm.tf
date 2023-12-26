@@ -21,18 +21,19 @@ module "instance_template" {
 }
 
 module "compute_instance" {
-  for_each = { for purpose, zone in var.vm_names_zone_mapping : purpose => zone }
+  for_each = { for purpose, details in var.vm : purpose => details }
 
   source  = "terraform-google-modules/vm/google//modules/compute_instance"
   version = "~> 10.0"
 
   hostname            = each.key
   region              = var.region
-  zone                = format("%s-%s", var.region, each.value)
+  zone                = format("%s-%s", var.region, each.value.zone)
   subnetwork          = module.vpc.subnets_names[0]
   instance_template   = module.instance_template.self_link
   deletion_protection = false
+  static_ips          = [each.value.ip_address]
 
-  # Assign public IP only to 'isc-client' instance
+  # # Assign public IP only to 'isc-client' instance
   access_config = each.key == "isc-client" ? [{ nat_ip = var.client_public_ip, network_tier = var.network_tier }] : []
 }
