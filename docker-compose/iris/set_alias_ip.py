@@ -8,6 +8,9 @@ For simplicity, we use the primary subnet range.
 Using google cli, gcloud, this action could be performed in this way:
 $ gcloud compute instances network-interfaces update <instance_name> --zone=<subnet_zone> --aliases="10.0.0.250/32"
 
+Note that the command for alias removal looks similar - just provide an empty `aliases`:
+$ gcloud compute instances network-interfaces update <instance_name> --zone=<subnet_zone> --aliases=""
+
 We leverage Google Compute Engine Metadata API to retrieve <instance_name> as well as <subnet_zone>.
 
 Also note https://cloud.google.com/vpc/docs/subnets#unusable-ip-addresses-in-every-subnet.

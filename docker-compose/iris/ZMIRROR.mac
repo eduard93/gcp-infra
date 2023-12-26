@@ -1,0 +1,8 @@
+ROUTINE ZMIRROR
+
+NotifyBecomePrimary() PUBLIC {
+    #include %occMessages
+    set sc = ##class(%SYS.System).WriteToConsoleLog("Setting Alias IP instead of Mirror VIP"_$random(100))
+    set sc = ##class(%SYS.Python).Import("set_alias_ip")
+    quit sc
+}

@@ -1,0 +1,3 @@
+zn "%SYS"
+do ##class(%SYSTEM.OBJ).Load("/tmp/ZMIRROR.mac", "ck")
+halt

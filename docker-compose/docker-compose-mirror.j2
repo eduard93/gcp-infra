@@ -4,7 +4,7 @@ services:
   iris:
     image: "{{ region }}-docker.pkg.dev/{{ project_id }}/intersystems/iris:{{ iris_version }}"
     container_name: iris
-    hostname: iris
+    hostname: "{{ hostname }}"
     command: --key /iris/iris.key
     ports:
     - 1972:1972
