@@ -131,7 +131,7 @@ $ export IRIS_VERSION=2023.2.0.221.0
 $ cd docker-compose/iris
 $ docker build -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/iris:${IRIS_VERSION} .
 
-$ for IMAGE in iris webgateway arbiter; do \
+$ for IMAGE in webgateway arbiter; do \
     docker pull containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} \
     && docker tag containers.intersystems.com/intersystems/${IMAGE}:${IRIS_VERSION} ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}:${IRIS_VERSION} \
     && docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}:${IRIS_VERSION}; \

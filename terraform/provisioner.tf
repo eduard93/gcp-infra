@@ -8,8 +8,9 @@ resource "null_resource" "client" {
   connection {
     host        = nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)
     user        = var.ssh_user
+    port        = var.ssh_port
     agent       = false
-    timeout     = "3m"
+    timeout     = "10m"
     private_key = file(var.ssh_private_key_file)
   }
 
@@ -21,7 +22,7 @@ resource "null_resource" "client" {
     command = <<-EOT
       ssh-add ${var.ssh_private_key_file}
       ansible-playbook -i "$HOST_IP," \
-        --extra-vars "ansible_user=$SSH_USER project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
+        --extra-vars "ansible_user=$SSH_USER ansible_port=$SSH_PORT project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
         --ssh-common-args="$SSH_COMMON_ARGS" \
         --timeout "$TIMEOUT" \
         ../ansible/playbook.yml
@@ -30,7 +31,8 @@ resource "null_resource" "client" {
       HOST_IP         = nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)
       SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no"
       SSH_USER        = var.ssh_user
-      TIMEOUT         = 120
+      SSH_PORT        = var.ssh_port
+      TIMEOUT         = 600
       PROJECT_ID      = var.project_id
       REGION          = var.region
       IRIS_VERSION    = var.iris_version
@@ -50,11 +52,12 @@ resource "null_resource" "servers" {
   connection {
     host                = nonsensitive(module.compute_instance[each.key].instances_details[0].network_interface[0].network_ip)
     user                = var.ssh_user
+    port                = var.ssh_port
     agent               = true
-    timeout             = "3m"
+    timeout             = "10m"
     private_key         = file(var.ssh_private_key_file)
     bastion_host        = nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)
-    bastion_port        = 22
+    bastion_port        = var.ssh_port
     bastion_user        = var.ssh_user
     bastion_private_key = file(var.ssh_private_key_file)
   }
@@ -67,16 +70,17 @@ resource "null_resource" "servers" {
     command = <<-EOT
       ssh-add ${var.ssh_private_key_file}
       ansible-playbook -i "$HOST_IP," \
-        --extra-vars "ansible_user=$SSH_USER project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
+        --extra-vars "ansible_user=$SSH_USER ansible_port=$SSH_PORT project_id=$PROJECT_ID region=$REGION iris_version=$IRIS_VERSION" \
         --ssh-common-args="$SSH_COMMON_ARGS" \
         --timeout "$TIMEOUT" \
         ../ansible/playbook.yml
     EOT
     environment = {
       HOST_IP         = nonsensitive(module.compute_instance[each.key].instances_details[0].network_interface[0].network_ip)
-      SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no -o ProxyJump=${var.ssh_user}@${nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)}"
+      SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no -o ProxyJump=${var.ssh_user}@${nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)}:${var.ssh_port}"
       SSH_USER        = var.ssh_user
-      TIMEOUT         = 120
+      SSH_PORT        = var.ssh_port
+      TIMEOUT         = 600
       PROJECT_ID      = var.project_id
       REGION          = var.region
       IRIS_VERSION    = var.iris_version

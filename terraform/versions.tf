@@ -6,11 +6,6 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 5.5.0"
     }
-
-    # ansible = {
-    #   source  = "ansible/ansible"
-    #   version = "~> 1.1.0"
-    # }
   }
 }
 

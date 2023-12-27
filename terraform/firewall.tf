@@ -17,7 +17,7 @@ module "firewall_rules" {
     target_service_accounts = null
     allow = [{
       protocol = "tcp"
-      ports    = ["22"]
+      ports    = ["2180"]
     }]
     deny = []
     log_config = {

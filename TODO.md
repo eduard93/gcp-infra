@@ -1,7 +1,3 @@
-- change instance permissions
-- change default ssh port (templates/vm_init.sh)
-- disable ssh with root user
-- check that all commented code is removed
 - in Ansible playbook use variables for apps versions
 
 - The next error during 1-st creation:
@@ -9,4 +5,3 @@ null_resource.client (local-exec): fatal: [34.82.229.130]: UNREACHABLE! => {"cha
 
 - terraform. Remote state
 - run everything with gitlab pipeline
-- Check variables.tf for location of private ssh key. Add a note about it to README

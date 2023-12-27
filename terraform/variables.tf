@@ -91,6 +91,12 @@ variable "ssh_user" {
   default     = "isc"
 }
 
+variable "ssh_port" {
+  type        = string
+  description = "SSH port"
+  default     = 2180
+}
+
 variable "ssh_public_key_file" {
   type        = string
   description = "SSH public key file"
