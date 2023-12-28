@@ -5,3 +5,4 @@ null_resource.client (local-exec): fatal: [34.82.229.130]: UNREACHABLE! => {"cha
 
 - terraform. Remote state
 - run everything with gitlab pipeline
+- describe how to return the former primary instance back after failover.

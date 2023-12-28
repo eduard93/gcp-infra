@@ -5,6 +5,7 @@ This repository is intended to demonstrate ISC Mirroring Failover in GCP cloud.
 - [Prepare Docker images](#prepare-docker-images)
 - [Put IRIS license](#put-iris-license)
 - [Provisioning](#provisioning)
+- [Quick test](#quick-test)
 
 ## Tools
 [gcloud](https://cloud.google.com/sdk/docs/install):
@@ -146,3 +147,70 @@ Put IRIS license key file, `iris.key` to <root_repo_dir>/docker-compose/iris/iri
 
 ## Provisioning
 Terraform runs Ansible right after infrastructure creation. So you're not required to do it manually.
+
+
+## Quick test
+### Access to IRIS mirror instances with SSH
+All instances, except `isc-client-001`, are created in a private network to increase a security level. But you can access them.
+
+For SSH access please use [SSH ProxyJump](https://goteleport.com/blog/ssh-proxyjump-ssh-proxycommand/) feature. Get the `isc-client-001` public IP first:
+```
+$ export ISC_CLIENT_PUBLIC_IP=$(gcloud compute instances describe isc-client-001 --zone=us-west1-c --format=json | jq -r '.networkInterfaces[].accessConfigs[].natIP')
+```
+Then connect to, for example, `isc-primary-001` with a private SSH key. Note that we use a custom SSH port, `2180`:
+```
+$ ssh -i ~/.ssh/isc_mirror -p 2180 isc@10.0.0.3 -o ProxyJump=isc@${ISC_CLIENT_PUBLIC_IP}:2180
+```
+After connection, let's check that Primary mirror member has Alias IP:
+```
+[isc@isc-primary-001 ~]$ ip route ls table local type local dev eth0 scope host proto 66
+local 10.0.0.250
+
+[isc@isc-primary-001 ~]$ ping -c 1 10.0.0.250
+PING 10.0.0.250 (10.0.0.250) 56(84) bytes of data.
+64 bytes from 10.0.0.250: icmp_seq=1 ttl=64 time=0.049 ms
+```
+
+### Access to IRIS mirror instances Management Portals
+To open mirror instances Management Portals located in a private network, we leverage [SSH Socks Tunneling](https://goteleport.com/blog/ssh-tunneling-explained/).
+
+Let's connect to `isc-primary-001` instance. Note that a tunnel will live in a background after the next command:
+```
+$ ssh -f -N  -i ~/.ssh/isc_mirror -p 2180 isc@10.0.0.3 -o ProxyJump=isc@${ISC_CLIENT_PUBLIC_IP}:2180 -L 8080:10.0.0.3:8080
+```
+Port 8080, instead of a familiar 52773, is used because we start IRIS with a dedicated WebGateway running on port 8080.
+
+After successful connection, open [http://127.0.0.1:8080/csp/sys/UtilHome.csp](http://127.0.0.1:8080/csp/sys/UtilHome.csp) in a browser. You should see a Management Portal. Credentials are typical: `_system/SYS`.
+
+The same approach works for all instances: primary (10.0.0.3), backup (10.0.0.4) and arbiter (10.0.0.5). Just make an SSH connection to them first.
+
+### Test
+Let's connect to `isc-client-001`:
+```
+$ ssh -i ~/.ssh/isc_mirror -p 2180 isc@${ISC_CLIENT_PUBLIC_IP}
+```
+Check Primary mirror member's Management Portal availability on Alias IP address:
+```
+$ curl -s -o /dev/null -w "%{http_code}\n" http://10.0.0.250:8080/csp/sys/UtilHome.csp
+200
+```
+Let's connect to `isc-primary-001` on another console:
+```
+$ ssh -i ~/.ssh/isc_mirror -p 2180 isc@10.0.0.3 -o ProxyJump=isc@${ISC_CLIENT_PUBLIC_IP}:2180
+```
+And switch the current Primary instance off. Note that IRIS as well as its WebGateway is running in Docker:
+```
+[isc@isc-primary-001 ~]$ docker-compose -f /isc-mirror/docker-compose.yml down
+```
+Let's check mirror member's Management Portal availability on Alias IP address again from `isc-client-001`:
+```
+[isc@isc-client-001 ~]$ curl -s -o /dev/null -w "%{http_code}\n" http://10.0.0.250:8080/csp/sys/UtilHome.csp
+200
+```
+It should work as Alias IP was moved to `isc-backup-001` instance:
+```
+$ ssh -i ~/.ssh/isc_mirror -p 2180 isc@10.0.0.4 -o ProxyJump=isc@${ISC_CLIENT_PUBLIC_IP}:2180
+[isc@isc-backup-001 ~]$ ip route ls table local type local dev eth0 scope host proto 66
+local 10.0.0.250
+```
+TODO - describe how to return the former primary instance back after failover.

@@ -10,7 +10,7 @@ resource "null_resource" "client" {
     user        = var.ssh_user
     port        = var.ssh_port
     agent       = false
-    timeout     = "10m"
+    timeout     = "30m"
     private_key = file(var.ssh_private_key_file)
   }
 
@@ -32,7 +32,7 @@ resource "null_resource" "client" {
       SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no"
       SSH_USER        = var.ssh_user
       SSH_PORT        = var.ssh_port
-      TIMEOUT         = 600
+      TIMEOUT         = 1800
       PROJECT_ID      = var.project_id
       REGION          = var.region
       IRIS_VERSION    = var.iris_version
@@ -54,7 +54,7 @@ resource "null_resource" "servers" {
     user                = var.ssh_user
     port                = var.ssh_port
     agent               = true
-    timeout             = "10m"
+    timeout             = "30m"
     private_key         = file(var.ssh_private_key_file)
     bastion_host        = nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)
     bastion_port        = var.ssh_port
@@ -80,7 +80,7 @@ resource "null_resource" "servers" {
       SSH_COMMON_ARGS = "-o StrictHostKeyChecking=no -o ProxyJump=${var.ssh_user}@${nonsensitive(module.compute_instance["isc-client"].instances_details[0].network_interface[0].access_config[0].nat_ip)}:${var.ssh_port}"
       SSH_USER        = var.ssh_user
       SSH_PORT        = var.ssh_port
-      TIMEOUT         = 600
+      TIMEOUT         = 1800
       PROJECT_ID      = var.project_id
       REGION          = var.region
       IRIS_VERSION    = var.iris_version
