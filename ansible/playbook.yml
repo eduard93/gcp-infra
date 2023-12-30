@@ -62,6 +62,10 @@
       groups: docker
       append: yes
 
+  - name: Relogin user 'isc' after adding to docker group
+    meta: reset_connection
+    when: ansible_facts['hostname'] != "isc-client-001"
+
   - name: Create Docker working directory
     ansible.builtin.file:
       path: "/isc-mirror/{{ item }}"
