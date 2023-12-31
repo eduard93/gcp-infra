@@ -42,11 +42,13 @@ ansible-playbook [core 2.12.5]
 ```
 
 ## IaC
+**Note**: we leverage Terraform and store its state in a Cloud Storage. See detail below about how this storage is created.
 1. Define several variables used below, like project ID and so on:
 ```
 $ export PROJECT_ID=<project_id>
 $ export REGION=<region> # For instance, us-west1
 $ export TF_VAR_project_id=${PROJECT_ID}
+$ export TF_VAR_region=${REGION}
 $ export ROLE_NAME=MyTerraformRole
 $ export SA_NAME=isc-mirror
 ```
@@ -54,7 +56,7 @@ $ export SA_NAME=isc-mirror
 2. Create Role used by Terraform for managing needed GCP resources:
 
 ```
-$ cd terraform
+$ cd <root_repo_dir>/terraform/
 
 $ gcloud iam roles create ${ROLE_NAME} --project ${PROJECT_ID} --file=terraform-permissions.yaml
 ```
@@ -79,7 +81,7 @@ $ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 $ gcloud iam service-accounts keys create ${SA_NAME}.json \
     --iam-account=${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 
-$ export GOOGLE_APPLICATION_CREDENTIALS=${SA_NAME}.json
+$ export GOOGLE_APPLICATION_CREDENTIALS=<absolute_path_to_root_repo_dir>/terraform/${SA_NAME}.json
 ```
 
 5. Generate SSH keypair.
@@ -90,9 +92,20 @@ $ ssh-keygen -b 4096 -C "isc"
 $ cp ~/.ssh/isc_mirror.pub <root_repo_dir>/terraform/templates/
 ```
 
+6. Create Cloud Storage for storing [Terraform state remotely](https://developer.hashicorp.com/terraform/language/state/remote). You could take a look at [Store Terraform state in a Cloud Storage bucket](https://cloud.google.com/docs/terraform/resource-management/store-state) as an example.
+
+**Note**: created Cloud Storage will have a name like `isc-mirror-demo-terraform-<project_id>`:
+```
+$ cd <root_repo_dir>/terraform-storage/
+$ terraform init
+$ terraform plan
+$ terraform apply
+```
+
 7. Create resources with Terraform:
 ```
-$ terraform init
+$ cd <root_repo_dir>/terraform/
+$ terraform init -backend-config="bucket=isc-mirror-demo-terraform-${PROJECT_ID}"
 $ terraform plan
 $ terraform apply
 ```

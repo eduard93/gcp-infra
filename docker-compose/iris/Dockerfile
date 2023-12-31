@@ -33,9 +33,6 @@ RUN pip3 install \
 # User irisowner
 USER ${ISC_PACKAGE_MGRUSER}
 
-# Import ZMIRROR routine
-# RUN --mount=type=secret,id=./iris.key,dst=/usr/irissys/mgr/iris.key,uid=51773,mode=0640,required=true \
-
 RUN iris start ${ISC_PACKAGE_INSTANCENAME} quietly \
     && iris session ${ISC_PACKAGE_INSTANCENAME} < /tmp/iris.script \
     && iris stop ${ISC_PACKAGE_INSTANCENAME} quietly

@@ -74,3 +74,14 @@ includedPermissions:
 
 # Artifact Registry
 - artifactregistry.repositories.uploadArtifacts
+
+# Cloud Storage
+- storage.buckets.create
+- storage.buckets.get
+- storage.buckets.list
+- storage.buckets.delete
+- storage.objects.get
+- storage.objects.list
+- storage.objects.create
+- storage.objects.delete
+- storage.objects.update

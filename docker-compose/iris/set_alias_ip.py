@@ -38,6 +38,10 @@ project_path = "project/project-id"
 instance_path = "instance/name"
 zone_path = "instance/zone"
 network_interface = "nic0"
+instance_zone_map = {
+    "isc-primary-001": "us-west1-a",
+    "isc-backup-001": "us-west1-b"
+}
 
 
 def get_metadata(path: str) -> str:
@@ -84,10 +88,7 @@ def update_network_interface(action: str, instance_name: str, zone: str) -> None
 
 def get_remote_instance_and_zone() -> str:
     local_instance = get_metadata(instance_path)
-    instances = {
-        "isc-primary-001": "us-west1-a",
-        "isc-backup-001": "us-west1-b"
-    }
+    instances = instance_zone_map
     del instances[local_instance]
     return instances
 
