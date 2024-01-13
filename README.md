@@ -128,7 +128,7 @@ and then repeat `terraform apply`.
 It's [recommended](https://cloud.google.com/container-registry/docs/advanced-authentication) to leverage Google Artifact Registry instead of Container Registry. So let's create registry first:
 ```
 $ cd <root_repo_dir>/terraform
-$ cat ${SA_NAME}.json | base64 | tr -d '\n' | docker login -u _json_key_base64 --password-stdin https://${REGION}-docker.pkg.dev
+$ cat ${SA_NAME}.json | docker login -u _json_key --password-stdin https://${REGION}-docker.pkg.dev
 $ gcloud artifacts repositories create --repository-format=docker --location=${REGION} intersystems
 ```
 
