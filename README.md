@@ -88,7 +88,7 @@ $ export GOOGLE_APPLICATION_CREDENTIALS=<absolute_path_to_root_repo_dir>/terrafo
 
 Generate SSH keypair. Store a private part locally as `.ssh/isc_mirror`. Put a public part to a file [isc_mirror.pub](../terraform/templates/isc_mirror.pub):
 ```
-$ ssh-keygen -b 4096 -C "isc"
+$ ssh-keygen -b 4096 -C "isc" -f $HOME/.ssh/isc_mirror
 $ cp ~/.ssh/isc_mirror.pub <root_repo_dir>/terraform/templates/
 ```
 
