@@ -53,18 +53,15 @@ variable "source_image" {
 }
 
 variable "vm" {
-  type = object({
-    isc-primary = object({ zone = string, ip_address = string })
-    isc-backup  = object({ zone = string, ip_address = string })
-    isc-arbiter = object({ zone = string, ip_address = string })
-    isc-client  = object({ zone = string, ip_address = string })
-  })
-  default = {
-    "isc-primary" = { zone = "a", ip_address = "10.0.0.3" },
-    "isc-backup"  = { zone = "b", ip_address = "10.0.0.4" },
-    "isc-arbiter" = { zone = "c", ip_address = "10.0.0.5" },
-    "isc-client"  = { zone = "c", ip_address = "10.0.0.6" },
-  }
+  type = list(object({
+    name = string, ip_address = string
+  }))
+  default = [
+    { "name" = "isc-primary", "ip_address" = "10.0.0.3" },
+    { "name" = "isc-backup", "ip_address" = "10.0.0.4" },
+    { "name" = "isc-arbiter", "ip_address" = "10.0.0.5" },
+    { "name" = "isc-client", "ip_address" = "10.0.0.6" }
+  ]
 }
 
 variable "client_public_ip" {

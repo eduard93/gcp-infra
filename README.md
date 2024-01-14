@@ -6,6 +6,7 @@ This repository is intended to demonstrate ISC Mirroring Failover in GCP cloud.
 - [Put IRIS license](#put-iris-license)
 - [Provisioning](#provisioning)
 - [Quick test](#quick-test)
+- [Cleanup](#cleanup)
 
 ## Tools
 [gcloud](https://cloud.google.com/sdk/docs/install):
@@ -227,3 +228,10 @@ $ ssh -i ~/.ssh/isc_mirror -p 2180 isc@10.0.0.4 -o ProxyJump=isc@${ISC_CLIENT_PU
 local 10.0.0.250
 ```
 TODO - describe how to return the former primary instance back after failover.
+
+## Cleanup
+```
+$ cd <root_repo_dir>/terraform/
+$ terraform init -backend-config="bucket=isc-mirror-demo-terraform-${PROJECT_ID}"
+$ terraform destroy
+```

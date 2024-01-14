@@ -41,7 +41,7 @@ resource "null_resource" "client" {
 }
 
 resource "null_resource" "servers" {
-  for_each = { for purpose, zone in var.vm : purpose => zone if purpose != "isc-client" }
+  for_each = { for index, details in var.vm : details.name => details if details.name != "isc-client" }
 
   triggers = {
     always_run = timestamp()
