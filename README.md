@@ -89,7 +89,7 @@ $ export GOOGLE_APPLICATION_CREDENTIALS=<absolute_path_to_root_repo_dir>/terrafo
 
 Generate SSH keypair. Store a private part locally as `.ssh/isc_mirror`. Put a public part to a file [isc_mirror.pub](../terraform/templates/isc_mirror.pub):
 ```
-$ ssh-keygen -b 4096 -C "isc"
+$ ssh-keygen -b 4096 -C "isc" -f ~/.ssh/isc_mirror
 $ cp ~/.ssh/isc_mirror.pub <root_repo_dir>/terraform/templates/
 ```
 
@@ -129,7 +129,7 @@ and then repeat `terraform apply`.
 It's [recommended](https://cloud.google.com/container-registry/docs/advanced-authentication) to leverage Google Artifact Registry instead of Container Registry. So let's create registry first:
 ```
 $ cd <root_repo_dir>/terraform
-$ cat ${SA_NAME}.json | base64 | tr -d '\n' | docker login -u _json_key_base64 --password-stdin https://${REGION}-docker.pkg.dev
+$ cat ${SA_NAME}.json | docker login -u _json_key --password-stdin https://${REGION}-docker.pkg.dev
 $ gcloud artifacts repositories create --repository-format=docker --location=${REGION} intersystems
 ```
 
