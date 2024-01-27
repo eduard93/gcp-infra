@@ -78,6 +78,15 @@
     - webgateway
     when: ansible_facts['hostname'] != "isc-client-001"
 
+  - name: Create Persistent data folder
+    ansible.builtin.file:
+      path: "/data"
+      state: directory
+      mode: '0755'
+      owner: "51773"
+      group: "51773"
+    when: ansible_facts['hostname'] != "isc-client-001"
+
   - name: Authenticate Docker to Artifact Registry
     ansible.builtin.shell:
       cmd: "gcloud auth configure-docker {{ region }}-docker.pkg.dev --quiet"
