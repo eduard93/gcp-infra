@@ -74,6 +74,7 @@ includedPermissions:
 
 # Artifact Registry
 - artifactregistry.repositories.uploadArtifacts
+- artifactregistry.repositories.downloadArtifacts
 
 # Cloud Storage
 - storage.buckets.create

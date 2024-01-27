@@ -29,6 +29,7 @@ local 10.0.0.250
 
 import subprocess
 import requests
+import re
 from google.cloud import compute_v1
 
 ALIAS_IP = "10.0.0.250/32"
@@ -38,21 +39,37 @@ project_path = "project/project-id"
 instance_path = "instance/name"
 zone_path = "instance/zone"
 network_interface = "nic0"
-instance_zone_map = {
-    "isc-primary-001": "us-west1-a",
-    "isc-backup-001": "us-west1-b"
-}
+mirror_instances = ["isc-primary-001", "isc-backup-001"]
+
+client = compute_v1.InstancesClient()
 
 
 def get_metadata(path: str) -> str:
     return requests.get(METADATA_URL + path, headers=METADATA_HEADERS).text
 
 
-def update_network_interface(action: str, instance_name: str, zone: str) -> None:
+def get_region() -> str:
+    return get_metadata(zone_path).split('/')[3]
+
+
+def get_zone_by_instance_name_and_region(instance_name: str, region: str) -> str:
     project = get_metadata(project_path)
 
-    # Create an instance client
-    client = compute_v1.InstancesClient()
+    request = compute_v1.AggregatedListInstancesRequest()
+    request.project = project
+
+    instance_zone = ""
+    for zone, response in client.aggregated_list(request=request):
+        if response.instances:
+            if re.search(f"{region}*", zone):
+                for instance in response.instances:
+                    if instance.name == instance_name:
+                        return zone.split('/')[1]
+    return instance_zone
+
+
+def update_network_interface(action: str, instance_name: str, zone: str) -> None:
+    project = get_metadata(project_path)
 
     # Initialize IP range
     if action == "create":
@@ -86,15 +103,14 @@ def update_network_interface(action: str, instance_name: str, zone: str) -> None
     print(instance_name + ": " + str(response.status))
 
 
-def get_remote_instance_and_zone() -> str:
+def get_remote_instance_name() -> str:
     local_instance = get_metadata(instance_path)
-    instances = instance_zone_map
-    del instances[local_instance]
-    return instances
+    mirror_instances.remove(local_instance)
+    return ''.join(mirror_instances)
 
 # Get another failover member's instance name and zone
-remote_resources = get_remote_instance_and_zone()
-print("Alias IP is going to be deleted at: " + str(remote_resources))
+remote_instance = get_remote_instance_name()
+print("Alias IP is going to be deleted at: " + remote_instance)
 
 # Remove Alias IP from a remote failover member's Network Interface
 #
@@ -108,16 +124,16 @@ subprocess.run([
     "instances",
     "network-interfaces",
     "update",
-    list(remote_resources.keys())[0],
-    "--zone=" + list(remote_resources.values())[0],
+    remote_instance,
+    "--zone=" + get_zone_by_instance_name_and_region(remote_instance,  get_region()),
     "--aliases="
 ])
 # update_network_interface("delete",
-#                          list(remote_resources.keys())[0],
-#                          list(remote_resources.values())[0])
+#                          remote_instance,
+#                          get_zone_by_instance_name_and_region(remote_instance,  get_region())
 
 
 # Add Alias IP to a local failover member's Network Interface
 update_network_interface("create",
                          get_metadata(instance_path),
-                         get_metadata(zone_path).split('/')[3])
+                         get_region())

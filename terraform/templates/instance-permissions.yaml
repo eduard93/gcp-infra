@@ -1,3 +1,4 @@
 "compute.instances.get"
+"compute.instances.list"
 "compute.instances.updateNetworkInterface"
 "artifactregistry.repositories.downloadArtifacts"

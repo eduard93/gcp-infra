@@ -2,3 +2,5 @@
 - terraform. Remote state
 - run everything with gitlab pipeline
 - describe how to return the former primary instance back after failover.
+- "isc demo" role removal. In a week or so?
+-

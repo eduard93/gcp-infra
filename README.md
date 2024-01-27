@@ -17,6 +17,10 @@ This repository is intended to demonstrate ISC Mirroring Failover in GCP cloud.
   - [Access to IRIS mirror instances Management Portals](#access-to-iris-mirror-instances-management-portals)
   - [Test](#test)
 - [Cleanup](#cleanup)
+  - [Remove infrastructure](#remove-infrastructure)
+  - [Remove Artifact Registry](#remove-artifact-registry)
+  - [Remove Cloud Storage](#remove-cloud-storage)
+  - [Remove Terraform Role](#remove-terraform-role)
 
 
 ## Tools
@@ -240,8 +244,28 @@ local 10.0.0.250
 **TODO** - describe how to return the former primary instance back after failover.
 
 ## Cleanup
+
+### Remove infrastructure
 ```bash
 $ cd <root_repo_dir>/terraform/
 $ terraform init -backend-config="bucket=isc-mirror-demo-terraform-${PROJECT_ID}"
 $ terraform destroy
 ```
+
+### Remove Artifact Registry
+```bash
+$ cd <root_repo_dir>/terraform
+$ cat ${SA_NAME}.json | docker login -u _json_key --password-stdin https://${REGION}-docker.pkg.dev
+
+$ for IMAGE in iris webgateway arbiter; do \
+    gcloud artifacts docker images delete ${REGION}-docker.pkg.dev/${PROJECT_ID}/intersystems/${IMAGE}
+done
+$ gcloud artifacts repositories delete intersystems --location=${REGION}
+```
+
+### Remove Cloud Storage
+Remove Cloud Storage where Terraform stores its state. In our case, it's a `isc-mirror-demo-terraform-<project_id>`.
+
+
+### Remove Terraform Role
+Remove Terraform Role created in [Create Terraform Role](#create-terraform-role).
