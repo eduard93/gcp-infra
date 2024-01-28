@@ -1,6 +1,6 @@
 module "firewall_rules" {
   source  = "terraform-google-modules/network/google//modules/firewall-rules"
-  version = "~> 8.0"
+  version = "~> 9.0"
 
   project_id   = var.project_id
   network_name = module.vpc.network_name
@@ -28,7 +28,7 @@ module "firewall_rules" {
     description             = "Allow connection to IRIS ports"
     direction               = "INGRESS"
     priority                = null
-    ranges                  = [var.subnet_ip]
+    ranges                  = var.enable_mirror_public_ip ? ["0.0.0.0/0"] : [var.subnet_ip]
     source_tags             = null
     source_service_accounts = null
     target_tags             = null

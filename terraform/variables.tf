@@ -105,3 +105,9 @@ variable "ssh_private_key_file" {
   description = "SSH local private key file"
   default     = "~/.ssh/isc_mirror"
 }
+
+variable "enable_mirror_public_ip" {
+  type        = bool
+  description = "Expose mirror endpoint publicly"
+  default     = false
+}

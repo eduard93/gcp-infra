@@ -52,6 +52,14 @@ includedPermissions:
 - compute.firewalls.update
 - compute.firewalls.delete
 
+# External IPs
+- compute.addresses.createInternal
+- compute.addresses.list
+- compute.addresses.get
+- compute.addresses.use
+- compute.addresses.create
+- compute.addresses.delete
+
 # IAM
 - iam.serviceAccounts.getIamPolicy
 - iam.serviceAccounts.setIamPolicy

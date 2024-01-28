@@ -69,6 +69,11 @@ $ export TF_VAR_region=${REGION}
 $ export ROLE_NAME=MyTerraformRole
 $ export SA_NAME=isc-mirror
 ```
+**Note**: If you'd like to expose IRIS Mirror ports publicly (it's **not recommended**) you could enable it with:
+```bash
+$ export TF_VAR_enable_mirror_public_ip=true
+
+```
 
 ### Prepare Artifact Registry
 It's [recommended](https://cloud.google.com/container-registry/docs/advanced-authentication) to leverage Google Artifact Registry instead of Container Registry. So let's create registry first:
